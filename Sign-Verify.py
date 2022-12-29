@@ -2,9 +2,7 @@ import sys
 
 def createUser(name):
     print("User " + name + " has been created!")
-    f = open("C:\Users\IFES Yoga\Documents\GitHub\Sign-Verify\keys"+name+".xml", "w")
-    # if(f.__exit__):
-    #     print("Files exist")
+    f = open(name+".xml", "x")
 
 
 
