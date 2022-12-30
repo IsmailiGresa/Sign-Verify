@@ -45,11 +45,11 @@ def createUser(name):
 	print("User " + name + " has been created!")
 	publicKey = generatePubKey()
 	privateKey= generatePrivKey()
-	f = open(name+".json", "wb")
+	f = open("keys/" + name + ".priv.json", "wb")
 	pickle.dump(publicKey, f)
-	f1 = open(name+".pub.json", "wb")
+	f1 = open("keys/" + name + ".pub.json", "wb")
 	pickle.dump(privateKey, f1)
-
+	f2 = open(name + ".json", "x")
 
 def writeMessage(message, sender, reciever):
     print("Message was saved in file")
