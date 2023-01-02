@@ -1,11 +1,8 @@
 import sys
 import random
 import math
-import pickle
-import elgamal
 from pathlib import Path
-import csv
-
+import ast
 
 def generate_prime():	
 	p = random.randint(100, 1000) #Generating a random number between 100 and 1000
@@ -69,7 +66,7 @@ def verifySignature(message, signature, name): #Defining function to verify the 
     signature = signMessage(message, name)
     messageHash = hash(message) #Calculating the hash of the message
     r, s = signature #Unpacking the signature
-    e, n = publicKey #Unpacking the public key
+    e, n = generatePubKey() #Unpacking the public key
     v = pow(s, e, n) * r % n #Calculating v
     if v == messageHash: #Checking if v and the hash of the message are equal
         return True
@@ -77,30 +74,34 @@ def verifySignature(message, signature, name): #Defining function to verify the 
     	return False
 
 def writeMessage(message, sender, receiver):
-    #privateKey = getprivKeyFromFile(sender)
     signature = signMessage(message, sender)
     my_file = Path("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + sender + ".json")
     if my_file.is_file():
+        print("Sender: " + sender)
         f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'w')
         f.write(message + "\n")
-        f=open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json","a")
-        print(signature)
+        print("Message written in file: " + "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json")
+        f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a")
+        print("Receiver: " + receiver)
         f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a", encoding="utf-8")
         f.write(str(signature))
-        # continue
-        #f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'wb')
-        #pickle.dump(signature, f)
-#def writeMessage(message, sender, receiver):
-    #msg = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/msg.txt", "r")
-    #if(message == "msg"):
-    
-     #   cipher = elgamal.encrypt(publicKey, message)
-      #  f1 = "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + sender + ".json"
-      #  f2 = "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + reciever + ".json"
-       # isFile1 = os.f2.isfile(f2)
-    #if(isFile1 == True):
-     #   f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + reciever + ".json", 'w')
-      #  f.write(cipher)
+
+def readMessage(message, receiver, sender):
+    signature = signMessage(message, sender)
+    verify = verifySignature(message, signature, sender)
+    print("Receiver: " + receiver)
+    print("Sender: " + sender)
+    my_file = Path("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json")
+    if my_file.is_file():
+        f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'r')
+        data = f.read() 
+        data_list = data.split() 
+        integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
+        strings = [x for x in data_list if not x.isdigit()] # to access the strings
+    if verifySignature(message, signature, sender):
+        print("Signature: Verified successfully!")
+    else:
+    	print("Signature: Verification failed!")
 
 def getpubKeyFromFile(name):
     try:
@@ -117,12 +118,6 @@ def getprivKeyFromFile(name):
         return privKey
     except Exception as e:
         return None
-
-def readMessage(encrypted, receiver, sender):
-    cipher = writeMessage()
-    if(encrypted == cipher):
-        privateKey = getpubKeyFromFile()
-        plaintext = elgamal.decrypt(privateKey, encrypted)
 
 if(sys.argv[1] == "create-user"):
     createUser(sys.argv[2])
