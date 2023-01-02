@@ -4,6 +4,7 @@ import math
 import pickle
 import elgamal
 from pathlib import Path
+import csv
 
 
 def generate_prime():	
@@ -48,10 +49,10 @@ def createUser(name):
 	print("User " + name + " has been created!")
 	publicKey = generatePubKey()
 	privateKey= generatePrivKey()
-	f = open("keys/" + name + ".priv.json", "wb")
-	pickle.dump(publicKey, f)
-	f1 = open("keys/" + name + ".pub.json", "wb")
-	pickle.dump(privateKey, f1)
+	f = open("keys/" + name + ".priv.json", "w")
+	f.write(str(publicKey))
+	f1 = open("keys/" + name + ".pub.json", "w")
+	f1.write(str(privateKey))
 	f2 = open(name + ".json", "x")
 
 def signMessage(message, name): #Defining function to sign message using ElGamal
@@ -81,7 +82,14 @@ def writeMessage(message, sender, receiver):
     my_file = Path("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + sender + ".json")
     if my_file.is_file():
         f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'w')
-        f.write(message)
+        f.write(message + "\n")
+        f=open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json","a")
+        print(signature)
+        f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a", encoding="utf-8")
+        f.write(str(signature))
+        # continue
+        #f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'wb')
+        #pickle.dump(signature, f)
 #def writeMessage(message, sender, receiver):
     #msg = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/msg.txt", "r")
     #if(message == "msg"):
