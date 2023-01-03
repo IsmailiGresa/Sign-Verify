@@ -52,21 +52,49 @@ def createUser(name):
 	f1.write(str(privateKey))
 	f2 = open(name + ".json", "x")
 
+def encryptMessage(message, name):
+    e = getpubKeyFromFile(name)[1]
+    n = getpubKeyFromFile(name)[2]
+    message = str(message)
+    message = int(message)
+    e = int(e)
+    n = int(n)
+    k = random.randint(2, (n - 1))
+    a = pow(k, n)
+    b = (message * pow(e, k, n)) % n
+    return (a, b)
+
+def decryptMessage(cipher, name):
+    d = getprivKeyFromFile(name)[1]
+    n = getprivKeyFromFile(name)[2]
+    d = int(d)
+    n = int(n)
+    a = encryptMessage(cipher, name)[1]
+    b = encryptMessage(cipher, name)[2]
+    a = int(a)
+    b = int(b)
+    plaintxt = (b * pow(a, (n - 1 - d), n)) % n
+    return plaintxt
+
 def signMessage(message, name): #Defining function to sign message using ElGamal
-    privateKey = getprivKeyFromFile(name) 
+    d = getprivKeyFromFile(name)[1]
+    n = getprivKeyFromFile(name)[2]
+    d = int(d)
+    n = int(n)
     messageHash = hash(message) #Calculating the hash of the message
-    d, n = generatePrivKey() #Unpacking the private key
     k = random.randint(1, n - 1) #Generating k such that 1 < k < n
     r = pow(k, d, n) #Calculating r and s
     s = (messageHash - (d * r)) * (n**(k-1)) % n
     return (r, s) #Returning the signature
 
 def verifySignature(message, signature, name): #Defining function to verify the signed message
-    publicKey = getprivKeyFromFile(name) 
+    e = getpubKeyFromFile(name)[1]
+    n = getpubKeyFromFile(name)[2]
+    e = int(e)
+    n = int(n)
     signature = signMessage(message, name)
     messageHash = hash(message) #Calculating the hash of the message
     r, s = signature #Unpacking the signature
-    e, n = generatePubKey() #Unpacking the public key
     v = pow(s, e, n) * r % n #Calculating v
     if v == messageHash: #Checking if v and the hash of the message are equal
         return True
@@ -75,18 +103,23 @@ def verifySignature(message, signature, name): #Defining function to verify the 
 
 def writeMessage(message, sender, receiver):
     signature = signMessage(message, sender)
+    message = encryptMessage(message, receiver)
     my_file = Path("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + sender + ".json")
     if my_file.is_file():
         print("Sender: " + sender)
         f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'w')
-        f.write(message + "\n")
+        f.write("Message: "+ "\n")
+        data = f.write(str(message) + "\n")
+        #data_list = data.split()
         print("Message written in file: " + "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json")
         f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a")
         print("Receiver: " + receiver)
         f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a", encoding="utf-8")
+        f.write("Signature: " + "\n")
         f.write(str(signature))
 
 def readMessage(message, receiver, sender):
+    cipher = decryptMessage(message, sender)
     signature = signMessage(message, sender)
     verify = verifySignature(message, signature, sender)
     print("Receiver: " + receiver)
@@ -96,8 +129,12 @@ def readMessage(message, receiver, sender):
         f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'r')
         data = f.read() 
         data_list = data.split() 
-        integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
-        strings = [x for x in data_list if not x.isdigit()] # to access the strings
+    if(message == cipher):
+        print("Message: " + cipher)
+    else:
+        print("Message decryption failed!")
+        #integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
+        #strings = [x for x in data_list if not x.isdigit()] # to access the strings
     if verifySignature(message, signature, sender):
         print("Signature: Verified successfully!")
     else:
@@ -107,6 +144,9 @@ def getpubKeyFromFile(name):
     try:
         filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".pub.json", "r")
         pubKey = filePath.readline()
+        data_list = pubKey.split() 
+        #integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
+        #strings = [x for x in data_list if not x.isdigit()] # to access the strings
         return pubKey
     except Exception as e:
         return None
@@ -115,6 +155,9 @@ def getprivKeyFromFile(name):
     try:
         filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".priv.json", "r")
         privKey = filePath.readline()
+        data_list = privKey.split() 
+        #integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
+        #strings = [x for x in data_list if not x.isdigit()] # to access the strings
         return privKey
     except Exception as e:
         return None
