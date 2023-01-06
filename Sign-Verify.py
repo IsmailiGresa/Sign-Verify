@@ -2,7 +2,7 @@ import sys
 import random
 import math
 from pathlib import Path
-import ast
+import re
 
 def generate_prime():	
 	p = random.randint(100, 1000) #Generating a random number between 100 and 1000
@@ -27,7 +27,7 @@ def generatePubKey(): #Defining function to generate private and public keys
     for d in range(1, phi): #Calculating d such that (d * e) % phi = 1
     	if (d * e) % phi == 1:
             break
-    return (e, n) #Returning the public and private keys
+    return e, n #Returning the public and private keys
 
 def generatePrivKey(): #Defining function to generate private and public keys
     p = generate_prime() #Generating two prime numbers
@@ -40,7 +40,7 @@ def generatePrivKey(): #Defining function to generate private and public keys
     for d in range(1, phi): #Calculating d such that (d * e) % phi = 1
     	if (d * e) % phi == 1:
             break
-    return (d, n) #Returning the public and private keys
+    return d, n #Returning the public and private keys
 
 def createUser(name):
 	print("User " + name + " has been created!")
@@ -53,45 +53,46 @@ def createUser(name):
 	f2 = open(name + ".json", "x")
 
 def encryptMessage(message, name):
-    e = getpubKeyFromFile(name)[1]
-    n = getpubKeyFromFile(name)[2]
-    message = str(message)
+    e, n = getpubKeyFromFile(name)
+    #n = getpubKeyFromFile(name)
+    #message = str(message)
     message = int(message)
-    e = int(e)
-    n = int(n)
+    #e = int(e)
+    #n = int(n)
     k = random.randint(2, (n - 1))
-    a = pow(k, n)
-    b = (message * pow(e, k, n)) % n
-    return (a, b)
+    a = pow(k, e, n)
+    b = (message * pow(a, n, n)) % n
+    return a, b
 
 def decryptMessage(cipher, name):
-    d = getprivKeyFromFile(name)[1]
-    n = getprivKeyFromFile(name)[2]
-    d = int(d)
-    n = int(n)
-    a = encryptMessage(cipher, name)[1]
-    b = encryptMessage(cipher, name)[2]
-    a = int(a)
-    b = int(b)
+    d, n = getprivKeyFromFile(name)
+    #n = getprivKeyFromFile(name)
+    #d = int(d)
+    #n = int(n)
+    #a = encryptMessage(cipher, name)[2]
+    #b = encryptMessage(cipher, name)[3]
+    #a = int(a)
+    #b = int(b)
+    a, b = encryptMessage(cipher, name)
     plaintxt = (b * pow(a, (n - 1 - d), n)) % n
     return plaintxt
 
 def signMessage(message, name): #Defining function to sign message using ElGamal
-    d = getprivKeyFromFile(name)[1]
-    n = getprivKeyFromFile(name)[2]
-    d = int(d)
-    n = int(n)
+    d, n = getprivKeyFromFile(name)
+    #n = getprivKeyFromFile(name)[2]
+    #d = int(d)
+    #n = int(n)
     messageHash = hash(message) #Calculating the hash of the message
     k = random.randint(1, n - 1) #Generating k such that 1 < k < n
     r = pow(k, d, n) #Calculating r and s
     s = (messageHash - (d * r)) * (n**(k-1)) % n
-    return (r, s) #Returning the signature
+    return r, s #Returning the signature
 
 def verifySignature(message, signature, name): #Defining function to verify the signed message
-    e = getpubKeyFromFile(name)[1]
-    n = getpubKeyFromFile(name)[2]
-    e = int(e)
-    n = int(n)
+    e, n = getpubKeyFromFile(name)
+    #n = getpubKeyFromFile(name)
+    #e = int(e)
+    #n = int(n)
     signature = signMessage(message, name)
     messageHash = hash(message) #Calculating the hash of the message
     r, s = signature #Unpacking the signature
@@ -141,26 +142,26 @@ def readMessage(message, receiver, sender):
     	print("Signature: Verification failed!")
 
 def getpubKeyFromFile(name):
-    try:
         filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".pub.json", "r")
         pubKey = filePath.readline()
-        data_list = pubKey.split() 
-        #integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
-        #strings = [x for x in data_list if not x.isdigit()] # to access the strings
-        return pubKey
-    except Exception as e:
-        return None
+        if pubKey is not None:
+        #data_list = pubKey.split() 
+            #e, n = pubKey.split(", ")
+            e = re.findall('\((.*?),', pubKey)[0]
+            n = re.findall('\((.*?),', pubKey)[0]
+            return (int(e), int(n))
 
 def getprivKeyFromFile(name):
-    try:
         filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".priv.json", "r")
         privKey = filePath.readline()
-        data_list = privKey.split() 
-        #integers = [int(x) for x in data_list if x.isdigit()] # to access the integers
-        #strings = [x for x in data_list if not x.isdigit()] # to access the strings
-        return privKey
-    except Exception as e:
-        return None
+        if privKey is not None:
+        #data_list = privKey.split() 
+            #d, n = privKey.split(", ")
+            d = re.findall('\((.*?),', privKey)[0]
+            n = re.findall('\((.*?),', privKey)[0]
+            print(d)
+            print(n)
+            return (int(d), int(n))
 
 if(sys.argv[1] == "create-user"):
     createUser(sys.argv[2])
