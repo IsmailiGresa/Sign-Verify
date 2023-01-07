@@ -14,7 +14,7 @@ Users will be saved in the main directory and the private and public key get pla
 
 	python Sign-Verify.py write-message 423857 grese someone
 
-The message is sent from grese to someone and is saved on the main directory as someone.json file
+The message is sent from grese to someone and is saved on the main directory as someone.json file.
 With the message, the signature is also saved in the same file.
 
 3.Read the message the sender sent to the receiver:
