@@ -2,7 +2,6 @@ import sys
 import random
 import math
 from pathlib import Path
-import re
 
 def generatePrime():	
 	p = random.randint(100, 1000) #Generating a random number between 100 and 1000
@@ -62,7 +61,8 @@ def encryptMessage(message, name):
 
 def decryptMessage(cipher, name):
     d, n = getprivKeyFromFile(name)
-    a, b = encryptMessage(cipher, name)
+    cipher = getMsgFromFile(name)
+    a, b = cipher
     plaintxt = (b * pow(a, d, n)) % n
     return plaintxt
 
@@ -76,9 +76,9 @@ def signMessage(message, name): #Defining function to sign message using ElGamal
 
 def verifySignature(message, signature, name): #Defining function to verify the signed message
     e, n = getpubKeyFromFile(name)
-    #signature = signMessage(message, name)
     messageHash = hash(message) #Calculating the hash of the message
-    r, s = signature #Unpacking the signature
+    r, s = getSgnFromFile(name) #Unpacking the signature
+    r, s = signature
     v = pow(s, e, n) * r % n #Calculating v
     if v == messageHash: #Checking if v and the hash of the message are equal
         return True
@@ -91,19 +91,16 @@ def writeMessage(message, sender, receiver):
     my_file = Path("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + sender + ".json")
     if my_file.is_file():
         print("Sender: " + sender)
+        print("Receiver: " + receiver)
         f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'w')
-        f.write("Message: "+ "\n")
-        data = f.write(str(message) + "\n")
+        data = f.write(str(message))
         print("Message written in file: " + "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json")
         f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a")
-        print("Receiver: " + receiver)
-        f = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", "a", encoding="utf-8")
-        f.write("Signature: " + "\n")
-        f.write(str(signature))
+        f1 =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + sender + ".sign.json", 'x')
+        f1.write(str(signature))
+        print("Signature written in file: " + "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".sign.json")
 
 def readMessage(message, receiver, sender):
-    #message = getMsgFromFile(receiver)
-    #message = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'r')
     cipher = decryptMessage(message, sender)
     signature = signMessage(message, sender)
     verify = verifySignature(message, signature, sender)
@@ -145,12 +142,19 @@ def getMsgFromFile(name):
     filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + name + ".json", "r")
     msg = filePath.readline()
     if msg is not None:
-        message = str().strip('( )')
-        a = message.split(",")[0]
+        message = str(msg).strip('( )')
+        a = message.strip(" ").split(",")[0]
         b = message.split(", ")[1]
-        print(a)
-        print(b)
         return (int(a), int(b))
+
+def getSgnFromFile(name):
+    filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + name + ".sign.json", "r")
+    sign = filePath.readline()
+    if sign is not None:
+        signature = str(sign).strip('( )')
+        r = signature.strip(" ").split(",")[0]
+        s = signature.split(", ")[1]
+        return (int(r), int(s))
 
 if(sys.argv[1] == "create-user"):
     createUser(sys.argv[2])
