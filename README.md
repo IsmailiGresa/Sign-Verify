@@ -10,7 +10,7 @@ Commands on cmd:
 
 Users will be saved in the main directory and the private and public key get placed in keys
 
-2.Write the message from a user to another:
+2.Write the message (integer only) from a user to another:
 
 	python Sign-Verify.py write-message 423857 grese someone
 
