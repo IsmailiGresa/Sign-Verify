@@ -60,19 +60,9 @@ def encryptMessage(message, name):
     b = (message * pow(a, e, n)) % n
     return (a, b)
 
-def getMsgFromFile(name):
-    filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + name + ".json", "r")
-    msg = filePath.readline()
-    if msg is not None:
-        a = re.findall('\((.*?),', msg)[0] 
-        b = re.findall('\((.*?),', msg)[0]
-        print(a)
-        print(b)
-        return (int(a), int(b))
-
 def decryptMessage(cipher, name):
     d, n = getprivKeyFromFile(name)
-    a, b = getMsgFromFile(name)
+    a, b = encryptMessage(cipher, name)
     plaintxt = (b * pow(a, d, n)) % n
     return plaintxt
 
@@ -112,6 +102,7 @@ def writeMessage(message, sender, receiver):
         f.write(str(signature))
 
 def readMessage(message, receiver, sender):
+    #message = getMsgFromFile(receiver)
     #message = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'r')
     cipher = decryptMessage(message, sender)
     signature = signMessage(message, sender)
@@ -133,26 +124,33 @@ def readMessage(message, receiver, sender):
     	print("Signature: Verification failed!")
 
 def getpubKeyFromFile(name):
-        filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".pub.json", "r")
-        pubKey = filePath.readline()
-        if pubKey is not None:
-            #e, n = pubKey.split(", ")
-            e = re.findall('\((.*?),', pubKey)[0] 
-            n = re.findall('\((.*?),', pubKey)[0]
-            #print(e)
-            #print(n)
-            return (int(e), int(n))
+    filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".pub.json", "r")
+    pubKey = filePath.readline()
+    if pubKey is not None:
+        pub = str(pubKey).strip('( )')
+        e = pub.split(",")[0]
+        n = pub.split(", ")[1]
+        return (int(e), int(n))
 
 def getprivKeyFromFile(name):
-        filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".priv.json", "r")
-        privKey = filePath.readline()
-        if privKey is not None:
-            #d, n = privKey.split(", ")
-            d = re.findall('\((.*?),', privKey)[0]
-            n = re.findall('\((.*?),', privKey)[0]
-            #print(d)
-            #print(n)
-            return (int(d), int(n))
+    filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/keys/" + name + ".priv.json", "r")
+    privKey = filePath.readline()
+    if privKey is not None:
+        priv = str(privKey).strip('( )')
+        d = priv.split(",")[0]
+        n = priv.split(", ")[1]
+        return (int(d), int(n))
+
+def getMsgFromFile(name):
+    filePath = open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + name + ".json", "r")
+    msg = filePath.readline()
+    if msg is not None:
+        message = str().strip('( )')
+        a = message.split(",")[0]
+        b = message.split(", ")[1]
+        print(a)
+        print(b)
+        return (int(a), int(b))
 
 if(sys.argv[1] == "create-user"):
     createUser(sys.argv[2])
