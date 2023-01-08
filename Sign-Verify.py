@@ -101,9 +101,9 @@ def writeMessage(message, sender, receiver):
         print("Signature written in file: " + "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".sign.json")
 
 def readMessage(cipher, receiver, sender):
+    cipher = getMsgFromFile(receiver)
     message = decryptMessage(cipher, sender)
     signature = getSgnFromFile(receiver)
-    #signature = signMessage(message, sender)
     verify = verifySignature(message, signature, sender)
     print("Receiver: " + receiver)
     print("Sender: " + sender)
@@ -111,12 +111,11 @@ def readMessage(cipher, receiver, sender):
     if my_file.is_file():
         f =  open("C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".json", 'r')
         data = f.read() 
-        data_list = data.split() 
     if(message == cipher):
        print("Message: " + cipher)
     else:
         print("Message decryption failed!")
-    if verify:
+    if verify == True:
         print("Signature: Verified successfully!")
     else:
     	print("Signature: Verification failed!")
