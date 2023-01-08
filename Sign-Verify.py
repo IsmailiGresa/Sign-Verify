@@ -100,9 +100,10 @@ def writeMessage(message, sender, receiver):
         f1.write(str(signature))
         print("Signature written in file: " + "C:/Users/IFES Yoga/Documents/GitHub/Sign-Verify/" + receiver + ".sign.json")
 
-def readMessage(message, receiver, sender):
-    cipher = decryptMessage(message, sender)
-    signature = signMessage(message, sender)
+def readMessage(cipher, receiver, sender):
+    message = decryptMessage(cipher, sender)
+    signature = getSgnFromFile(receiver)
+    #signature = signMessage(message, sender)
     verify = verifySignature(message, signature, sender)
     print("Receiver: " + receiver)
     print("Sender: " + sender)
