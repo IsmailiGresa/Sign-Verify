@@ -10,14 +10,14 @@ Commands on cmd:
 
 Users will be saved in the main directory and the private and public key get placed in keys
 
-2.Write the message from a user to another:
+2.Write the message (integer only) from a user to another:
 
 	python Sign-Verify.py write-message 423857 grese someone
 
 The message is sent from grese to someone and is saved on the main directory as someone.json file.
 With the message, the signature is also saved in the same file.
 
-3.Read the message (integer only) the sender sent to the receiver:
+3.Read the message the sender sent to the receiver:
 
 	python Sign-Verify.py read-message 423857 someone grese
 
